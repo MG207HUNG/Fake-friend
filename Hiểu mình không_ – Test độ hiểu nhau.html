@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BFF test – phải Fake friend không rớ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+:root{--sky:#7dc4f5;--cloud:#f6faff;--pink:#f59cb8;--ink:#4a3535;--gold:#ffd966;--card:#fff;--ok:#5bc48a;--no:#ef7a7a;--bg1:#9fd4f8;--bg2:#f6faff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#f3e9e9;--card:#243449;--bg1:#1d3a5c;--bg2:#16243a;--cloud:#16243a}}
+:root[data-theme="dark"]{--ink:#f3e9e9;--card:#243449;--bg1:#1d3a5c;--bg2:#16243a;--cloud:#16243a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Baloo 2","Segoe UI",system-ui,sans-serif;color:var(--ink);background:linear-gradient(var(--bg1),var(--bg2) 60%);background-color:var(--bg2)}
+main{max-width:480px;margin:0 auto;padding:28px 18px 48px}
+h1{font-size:clamp(44px,13vw,64px);line-height:.95;margin:6px 0 4px;text-align:center;font-weight:800;color:#fff;-webkit-text-stroke:7px var(--ink);paint-order:stroke fill;letter-spacing:.5px}
+h1 .p{color:var(--pink)}
+.sub{text-align:center;font-size:18px;margin:0 0 22px}
+.card{background:var(--card);border:4px solid var(--ink);border-radius:26px;padding:20px;box-shadow:0 6px 0 var(--ink)}
+label{font-weight:700;display:block;margin-bottom:6px}
+input,textarea{width:100%;font:inherit;font-size:18px;padding:10px 14px;border:3px solid var(--ink);border-radius:16px;background:var(--cloud);color:var(--ink)}
+button{font:inherit;font-weight:800;font-size:19px;cursor:pointer;border:3px solid var(--ink);border-radius:18px;padding:10px 18px;background:var(--pink);color:#fff;box-shadow:0 4px 0 var(--ink);-webkit-text-stroke:0}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+button:focus-visible,input:focus-visible,.opt:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
+button.alt{background:var(--sky)}
+.full{width:100%;margin-top:14px}
+.bar{height:14px;border:3px solid var(--ink);border-radius:99px;background:var(--cloud);overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--pink);transition:width .3s}
+.q{font-size:23px;font-weight:800;line-height:1.2;margin:0 0 14px}
+.opt{display:block;width:100%;text-align:left;margin:0 0 10px;background:var(--cloud);color:var(--ink);font-weight:700;font-size:18px;box-shadow:0 3px 0 var(--ink)}
+.opt.sel{background:var(--gold)}
+.opt.ok{background:var(--ok);color:#fff}
+.opt.no{background:var(--no);color:#fff}
+.opt.mine{outline:4px dashed var(--ink);outline-offset:2px}
+.score{font-size:68px;font-weight:800;text-align:center;line-height:1;margin:6px 0}
+.msg{text-align:center;font-size:20px;font-weight:700;margin:0 0 6px}
+.hint{font-size:15px;opacity:.8;text-align:center;margin:12px 0 0}
+.row{display:flex;gap:10px}.row button{flex:1}.row input{flex:1;min-width:0}.row .mini{flex:0 0 auto;padding:6px 12px;background:var(--cloud);color:var(--ink)}
+.qe{border:3px solid var(--ink);border-radius:18px;padding:12px;margin-bottom:14px;background:var(--cloud)}.qe input{margin-top:8px;background:var(--card)}.qe .row input{margin-top:0;font-weight:700}
+.rank{list-style:none;padding:0;margin:0 0 6px}.rank li{display:flex;justify-content:space-between;gap:10px;font-size:20px;font-weight:700;padding:8px 12px;border:3px solid var(--ink);border-radius:16px;margin-bottom:8px;background:var(--cloud)}.rank li:first-child{background:var(--gold)}.rank span:first-child{overflow-wrap:anywhere}
+.er{color:var(--no);font-weight:700;text-align:center;margin:10px 0 0;min-height:1em}textarea{font-size:14px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1 aria-label="Hiểu mình không?">Fake <span class="p">Friend</span> ?</h1>
+<p class="sub" id="sub">🐻Xem mi hiểu ta không 🐼</p>
+<div id="app"></div>
+</main>
+<script>
+var DEF=[
+["Món ăn mình có thể ăn cả tuần không chán?",["Mì / phở","Cơm","Đồ chiên rán","Đồ ngọt"]],
+["Cuối tuần lý tưởng của mình là?",["Ngủ nướng cả ngày","Đi chơi với bạn","Cày phim / game","Đi cà phê một mình"]],
+["Mình hay trễ hẹn vì?",["Ngủ quên","Chọn đồ lâu","Kẹt xe","Mình không bao giờ trễ"]],
+["Khi buồn mình thường?",["Ăn thật nhiều","Nằm im nghe nhạc","Rủ bạn đi chơi","Ngủ"]],
+["Thứ mình sợ nhất?",["Gián / côn trùng","Chỗ cao","Ma","Bị deadline dí"]],
+["Tin nhắn mình trả lời kiểu?",["Trả ngay lập tức","Vài tiếng sau","Đọc rồi quên","Toàn gửi sticker"]],
+["Đồ uống mình hay gọi?",["Trà sữa","Cà phê","Nước ép / sinh tố","Nước lọc"]],
+["Nếu trúng số mình sẽ?",["Đi du lịch vòng quanh","Mua nhà","Đãi bạn bè","Gửi tiết kiệm"]],
+["Tính cách mình giống nhất?",["Hài hước","Trầm tính","Hay lo xa","Nói nhiều"]],
+["Điều làm mình giận nhất?",["Bị cho leo cây","Bị đọc tin không trả lời","Bị nói dối","Bị đói"]]
+];
+var QS=[],MAX=20,app=document.getElementById("app"),sub=document.getElementById("sub");
+function clone(a){return a.map(function(q){return [q[0],q[1].slice()]})}
+function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
+function dec(s){return JSON.parse(decodeURIComponent(escape(atob(s))))}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function base(){return location.href.split("#")[0]}
+function bar(i){return '<div class="bar"><i style="width:'+(i/QS.length*100)+'%"></i></div>'}
+function opts(i){return QS[i][1].map(function(o,k){return '<button class="opt" data-k="'+k+'">'+esc(o)+'</button>'}).join("")}
+function copy(id,out){var t=document.getElementById(id),ok=false;t.select();try{ok=document.execCommand("copy")}catch(e){}if(!ok&&navigator.clipboard)navigator.clipboard.writeText(t.value).catch(function(){});document.getElementById(out).textContent="Đã sao chép! Nếu chưa được, giữ vào ô link để chọn rồi copy."}
+
+function home(){
+ QS=clone(DEF);sub.textContent="🐻 Xem mi hiểu ta không 🐼";
+ app.innerHTML='<div class="card"><label for="nm">Tên của bạn</label><input id="nm" maxlength="20" placeholder="Ví dụ: Mi" autocomplete="off"><button class="full" id="go">Chọn câu hỏi</button><p class="hint">Dùng 10 câu mẫu hoặc tự sửa, thêm, xóa câu hỏi. Sau đó bạn trả lời và gửi link cho bạn bè đoán.</p></div>';
+ document.getElementById("go").onclick=function(){var n=document.getElementById("nm").value.trim();if(!n){document.getElementById("nm").focus();return}edit(n)};
+}
+function edit(n){
+ sub.textContent="Câu hỏi của "+n;
+ var h='<div class="card"><p class="msg">Sửa, xóa hoặc thêm câu hỏi</p>';
+ QS.forEach(function(q,i){
+  h+='<div class="qe"><div class="row"><input data-i="'+i+'" data-j="-1" value="'+esc(q[0])+'" aria-label="Câu hỏi '+(i+1)+'" maxlength="120"><button class="mini" data-del="'+i+'" aria-label="Xóa câu '+(i+1)+'">✕</button></div>';
+  for(var j=0;j<4;j++)h+='<input data-i="'+i+'" data-j="'+j+'" value="'+esc(q[1][j]||"")+'" maxlength="50" placeholder="Đáp án '+(j+1)+(j>1?" (có thể bỏ trống)":"")+'">';
+  h+='</div>';
+ });
+ h+='<button class="alt full" id="add"'+(QS.length>=MAX?' disabled':'')+'>+ Thêm câu hỏi ('+QS.length+'/'+MAX+')</button><button class="alt full" id="rs">Dùng lại bộ câu mẫu</button><button class="full" id="ok">Xong, tới lượt trả lời</button><p class="er" id="er"></p></div>';
+ app.innerHTML=h;
+ app.querySelectorAll("input").forEach(function(el){el.oninput=function(){var i=+el.dataset.i,j=+el.dataset.j;if(j<0)QS[i][0]=el.value;else QS[i][1][j]=el.value}});
+ app.querySelectorAll("[data-del]").forEach(function(b){b.onclick=function(){QS.splice(+b.dataset.del,1);edit(n)}});
+ document.getElementById("add").onclick=function(){QS.push(["",["","","",""]]);edit(n)};
+ document.getElementById("rs").onclick=function(){QS=clone(DEF);edit(n)};
+ document.getElementById("ok").onclick=function(){
+  var c=QS.map(function(q){return [q[0].trim(),q[1].map(function(o){return o.trim()}).filter(Boolean)]}).filter(function(q){return q[0]&&q[1].length>=2});
+  if(!c.length){document.getElementById("er").textContent="Cần ít nhất 1 câu hỏi có từ 2 đáp án trở lên.";return}
+  QS=c;create(n,0,[]);
+ };
+}
+function create(n,i,a){
+ if(i>=QS.length)return share(n,a);
+ sub.textContent="Trả lời về chính bạn nhé";
+ app.innerHTML='<div class="card">'+bar(i)+'<p class="q">'+(i+1)+'/'+QS.length+'. '+esc(QS[i][0])+'</p>'+opts(i)+'</div>';
+ app.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){create(n,i+1,a.concat([+b.dataset.k]))}});
+}
+function share(n,a){
+ var link=base()+"#"+enc({n:n,q:QS,a:a});
+ sub.textContent="Xong rồi, "+n+"!";
+ app.innerHTML='<div class="card"><p class="msg">Gửi link này cho bạn bè nhé</p><textarea id="lk" rows="4" readonly>'+esc(link)+'</textarea><button class="full" id="cp">Sao chép link</button><p class="hint" id="ct">Bạn bè mở link là chơi được ngay. Chơi xong họ sẽ có link kết quả để gửi lại cho bạn, rồi bạn gộp vào bảng xếp hạng.</p></div>';
+ document.getElementById("cp").onclick=function(){copy("lk","ct")};
+}
+function play(d){
+ QS=d.q||DEF;sub.textContent="Bạn hiểu "+d.n+" đến mức nào?";
+ app.innerHTML='<div class="card"><label for="nm">Tên của bạn</label><input id="nm" maxlength="20" placeholder="Tên bạn là gì?" autocomplete="off"><button class="full" id="go">Bắt đầu đoán</button><p class="hint">'+esc(d.n)+' đã chuẩn bị '+QS.length+' câu. Bạn đoán đúng được mấy câu?</p></div>';
+ document.getElementById("go").onclick=function(){ask(d,document.getElementById("nm").value.trim()||"Bạn",0,0)};
+}
+function ask(d,me,i,s){
+ if(i>=QS.length)return result(d,me,s);
+ app.innerHTML='<div class="card">'+bar(i)+'<p class="q">'+(i+1)+'/'+QS.length+'. '+esc(d.n)+': “'+esc(QS[i][0])+'”</p>'+opts(i)+'</div>';
+ app.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
+  var k=+b.dataset.k,right=d.a[i],good=k===right;
+  app.querySelectorAll(".opt").forEach(function(o){o.disabled=true;var q=+o.dataset.k;if(q===right)o.classList.add("ok");else if(q===k)o.classList.add("no")});
+  var nx=document.createElement("button");nx.className="full alt";nx.textContent=good?"Đúng rồi! Câu tiếp":(d.n+" chọn khác cơ. Câu tiếp");
+  app.firstChild.appendChild(nx);nx.focus();
+  nx.onclick=function(){ask(d,me,i+1,s+(good?1:0))};
+ }});
+}
+function result(d,me,s){
+ var r=s/QS.length,m=r>=.9?"Bạn thân thật sự rồi! 💖":r>=.7?"Hiểu nhau khá rõ đó!":r>=.5?"Cũng tạm, cần tâm sự thêm.":r>=.3?"Hơi xa lạ nha, hỏi han nhiều lên!":"Chắc mới quen hôm qua à? 😭";
+ var link=base()+"#"+enc({t:d.n,m:QS.length,e:[[me,s]]});
+ sub.textContent=me+" hiểu "+d.n+":";
+ app.innerHTML='<div class="card"><div class="score">'+s+'/'+QS.length+'</div><p class="msg">'+m+'</p><label for="lk">Link kết quả, gửi cho '+esc(d.n)+' để vào bảng xếp hạng</label><textarea id="lk" rows="3" readonly>'+esc(link)+'</textarea><button class="full" id="cp">Sao chép link kết quả</button><p class="hint" id="ct"></p><button class="full alt" id="again">Đoán lại</button><button class="full alt" id="mine">Tạo bài test của riêng mình</button></div>';
+ document.getElementById("cp").onclick=function(){copy("lk","ct")};
+ document.getElementById("again").onclick=function(){ask(d,me,0,0)};
+ document.getElementById("mine").onclick=function(){history.replaceState(null,"",location.pathname+location.search);home()};
+}
+function merge(b,txt){
+ var add=0;
+ (txt.match(/\S+/g)||[]).forEach(function(u){
+  var h=u.split("#")[1],x;if(!h)return;
+  try{x=dec(h)}catch(e){return}
+  if(!x||!x.e)return;
+  x.e.forEach(function(p){
+   var nm=String(p[0]).slice(0,20),sc=Math.max(0,Math.min(b.m,+p[1]||0)),f=false;
+   b.e.forEach(function(q){if(q[0].toLowerCase()===nm.toLowerCase()){q[1]=sc;f=true}});
+   if(!f)b.e.push([nm,sc]);add++;
+  });
+ });
+ return add;
+}
+function board(b){
+ b.m=+b.m||10;b.e=b.e.map(function(p){return [String(p[0]).slice(0,20),Math.max(0,Math.min(b.m,+p[1]||0))]});
+ b.e.sort(function(x,y){return y[1]-x[1]||x[0].localeCompare(y[0])});
+ sub.textContent="Ai hiểu "+b.t+" nhất?";
+ var med=["🥇","🥈","🥉"],link=base()+"#"+enc({t:b.t,m:b.m,e:b.e});
+ app.innerHTML='<div class="card"><p class="msg">Bảng xếp hạng</p><ol class="rank">'+b.e.map(function(p,i){return '<li><span>'+(med[i]||(i+1)+'.')+' '+esc(p[0])+'</span><span>'+p[1]+'/'+b.m+'</span></li>'}).join("")+'</ol><label for="pz">Thêm kết quả: dán link của bạn khác</label><textarea id="pz" rows="3" placeholder="Dán một hoặc nhiều link kết quả"></textarea><button class="full alt" id="ad">Thêm vào bảng</button><p class="er" id="er"></p><label for="lk">Link bảng xếp hạng, gửi lên nhóm cho mọi người xem</label><textarea id="lk" rows="3" readonly>'+esc(link)+'</textarea><button class="full" id="cp">Sao chép link bảng</button><p class="hint" id="ct"></p><button class="full alt" id="mine">Tạo bài test của riêng mình</button></div>';
+ document.getElementById("cp").onclick=function(){copy("lk","ct")};
+ document.getElementById("ad").onclick=function(){
+  var n=merge(b,document.getElementById("pz").value);
+  if(!n){document.getElementById("er").textContent="Chưa thấy link kết quả hợp lệ nào.";return}
+  board(b);
+ };
+ document.getElementById("mine").onclick=function(){history.replaceState(null,"",location.pathname+location.search);home()};
+}
+(function(){
+ var h=location.hash.slice(1),d=null;
+ try{if(h)d=dec(h)}catch(e){}
+ if(d&&d.e&&d.t)board(d);
+ else if(d&&d.n&&d.a&&d.a.length===(d.q||DEF).length)play(d);
+ else home();
+})();
+</script>
+</body>
+</html>
